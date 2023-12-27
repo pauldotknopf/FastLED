@@ -8,7 +8,7 @@
 /// @file led_sysdefs.h
 /// Determines which platform system definitions to include
 
-#include "platforms/unknown/sysdefs.h"
+#include "platforms/local/sysdefs.h"
 
 #ifndef FASTLED_NAMESPACE_BEGIN
 /// Start of the FastLED namespace
