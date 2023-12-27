@@ -1,11 +1,12 @@
-#pragma once
+#ifndef __INC_SYSDEFS_LOCAL_H
+#define __INC_SYSDEFS_LOCAL_H
 
 #include <sys/time.h>
 #include <cinttypes>
 
 static timeval _start_millis_time;
 
-int timeval_subtract (struct timeval *result, struct timeval *x, struct timeval *y)
+inline int timeval_subtract (struct timeval *result, struct timeval *x, struct timeval *y)
 {
     /* Perform the carry for the later subtraction by updating y. */
     if (x->tv_usec < y->tv_usec) {
@@ -28,8 +29,7 @@ int timeval_subtract (struct timeval *result, struct timeval *x, struct timeval 
     return x->tv_sec < y->tv_sec;
 }
 
-
-uint32_t get_millisecond_timer()
+inline uint32_t get_millisecond_timer()
 {
     if(_start_millis_time.tv_sec == 0)
     {
@@ -39,17 +39,17 @@ uint32_t get_millisecond_timer()
     gettimeofday(&current_time, NULL);
 
     timeval running_time;
-    timeval_subtract(&running_time, &_start_millis_time, &current_time);
+    timeval_subtract(&running_time, &current_time, &_start_millis_time);
 
     return running_time.tv_sec * 1000 + running_time.tv_usec / 1000;
 }
 
-unsigned long millis()
+inline unsigned long millis()
 {
     return get_millisecond_timer();
 }
 
-unsigned long micros()
+inline unsigned long micros()
 {
     if(_start_millis_time.tv_sec == 0)
     {
@@ -59,7 +59,9 @@ unsigned long micros()
     gettimeofday(&current_time, NULL);
 
     timeval running_time;
-    timeval_subtract(&running_time, &_start_millis_time, &current_time);
+    timeval_subtract(&running_time, &current_time, &_start_millis_time);
 
-    return running_time.tv_sec * 1000000 + running_time.tv_usec / 1000000;
+    return running_time.tv_sec * 1000000 + running_time.tv_usec;
 }
+
+#endif
