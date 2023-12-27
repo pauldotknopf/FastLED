@@ -59,11 +59,9 @@
 #include "bitswap.h"
 
 #include "controller.h"
-#include "fastpin.h"
 #include "fastspi_types.h"
 #include "dmx.h"
 
-#include "platforms.h"
 #include "fastled_progmem.h"
 
 #include "lib8tion.h"
@@ -75,9 +73,6 @@
 
 #include "noise.h"
 #include "power_mgt.h"
-
-#include "fastspi.h"
-#include "chipsets.h"
 
 FASTLED_NAMESPACE_BEGIN
 
@@ -218,6 +213,8 @@ enum EBlockChipsets {
 /// @param data max power data, in milliwatts
 /// @returns the brightness scale, limited to max power
 typedef uint8_t (*power_func)(uint8_t scale, uint32_t data);
+
+#if FALSE
 
 /// High level controller interface for FastLED.
 /// This class manages controllers, global settings, and trackings such as brightness
@@ -662,6 +659,8 @@ public:
 	CRGB *leds() { return (*this)[0].leds(); }
 };
 
+#endif
+
 /// Alias of the FastLED instance for legacy purposes
 #define FastSPI_LED FastLED
 /// Alias of the FastLED instance for legacy purposes
@@ -670,6 +669,8 @@ public:
 /// Alias of the FastLED instance for legacy purposes
 #define LEDS FastLED
 #endif
+
+#if FALSE
 
 /// Global LED strip management instance
 extern CFastLED FastLED;
@@ -680,6 +681,8 @@ extern CFastLED FastLED;
 #ifndef HAS_HARDWARE_PIN_SUPPORT
 #warning "No pin/port mappings found, pin access will be slightly slower. See fastpin.h for info."
 #define NO_HARDWARE_PIN_SUPPORT
+#endif
+
 #endif
 
 
