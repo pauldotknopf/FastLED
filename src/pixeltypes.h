@@ -276,7 +276,34 @@ struct CRGB {
         b = (colorcode >>  0) & 0xFF;
         return *this;
     }
+    inline CRGB& addToAlpha(uint8_t value) __attribute__((always_inline))
+    {
+        unsigned int result = a + value;
+        if(result > 255)
+        {
+            result = 255;
+        }
+        a = result;
+        return *this;
+    };
 
+    inline CRGB& subtractFromAlpha(uint8_t value) __attribute__((always_inline))
+    {
+        int result = a - value;
+        if(result < 0)
+        {
+            result = 0;
+        }
+        a = result;
+        return *this;
+    };
+
+    inline CRGB& flattenAgainstBlack() __attribute__((always_inline))
+    {
+        nscale8x3_video(r, g, b, a);
+        a = 255;
+        return *this;
+    }
 
     /// Add one CRGB to another, saturating at 0xFF for each channel
     inline CRGB& operator+= (const CRGB& rhs )
