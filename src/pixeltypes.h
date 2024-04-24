@@ -131,6 +131,11 @@ struct CRGB {
             union {
                 uint8_t b;     ///< Blue channel value
                 uint8_t blue;  ///< @copydoc b
+            }; 
+            // A = 0-255 (0 = transparent, 255 = opaque/visible)
+            union {
+                uint8_t a;
+                uint8_t alpha;
             };
         };
         /// Access the red, green, and blue data as an array.
@@ -138,7 +143,9 @@ struct CRGB {
         /// * `raw[0]` is the red value
         /// * `raw[1]` is the green value
         /// * `raw[2]` is the blue value
-        uint8_t raw[3];
+        /// * `raw[3]` is the alpha value
+        uint8_t raw[4];
+        uint32_t raw32;
     };
 
     /// Array access operator to index into the CRGB object
@@ -166,28 +173,37 @@ struct CRGB {
     /// @param ig input green value
     /// @param ib input blue value
     constexpr CRGB(uint8_t ir, uint8_t ig, uint8_t ib)  __attribute__((always_inline))
-        : r(ir), g(ig), b(ib)
+        : r(ir), g(ig), b(ib), a(255)
     {
     }
 
-    /// Allow construction from 32-bit (really 24-bit) bit 0xRRGGBB color code
+    /// Allow construction from red, green, blue and alpha
+    /// @param ir input red value
+    /// @param ig input green value
+    /// @param ib input blue value
+    constexpr CRGB(uint8_t ir, uint8_t ig, uint8_t ib, u_int8_t ia)  __attribute__((always_inline))
+        : r(ir), g(ig), b(ib), a(ia)
+    {
+    }
+
+    /// Allow construction from 32-bit bit 0xRRGGBBAA color code
     /// @param colorcode a packed 24 bit color code
     constexpr CRGB(uint32_t colorcode)  __attribute__((always_inline))
-    : r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF)
+    : r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF), a(255)
     {
     }
 
     /// Allow construction from a LEDColorCorrection enum
     /// @param colorcode an LEDColorCorrect enumeration value
     constexpr CRGB(LEDColorCorrection colorcode) __attribute__((always_inline))
-    : r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF)
+    : r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF), a(255)
     {
     }
 
     /// Allow construction from a ColorTemperature enum
     /// @param colorcode an ColorTemperature enumeration value
     constexpr CRGB(ColorTemperature colorcode) __attribute__((always_inline))
-    : r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF)
+    : r((colorcode >> 16) & 0xFF), g((colorcode >> 8) & 0xFF), b((colorcode >> 0) & 0xFF), a(255)
     {
     }
 
@@ -427,6 +443,7 @@ struct CRGB {
         out.r = ::scale8(r, scaledown.r);
         out.g = ::scale8(g, scaledown.g);
         out.b = ::scale8(b, scaledown.b);
+        out.a = a;
         return out;
     }
 
@@ -477,7 +494,7 @@ struct CRGB {
     /// This allows testing a CRGB for zero-ness
     inline explicit operator bool() const __attribute__((always_inline))
     {
-        return r || g || b;
+        return r || g || b || a;
     }
 
     /// Converts a CRGB to a 32-bit color having an alpha of 255.
@@ -824,7 +841,7 @@ struct CRGB {
 /// Check if two CRGB objects have the same color data
 inline __attribute__((always_inline)) bool operator== (const CRGB& lhs, const CRGB& rhs)
 {
-    return (lhs.r == rhs.r) && (lhs.g == rhs.g) && (lhs.b == rhs.b);
+    return (lhs.r == rhs.r) && (lhs.g == rhs.g) && (lhs.b == rhs.b) && (lhs.a == rhs.a);
 }
 
 /// Check if two CRGB objects do *not* have the same color data
@@ -923,7 +940,8 @@ inline CRGB operator&( const CRGB& p1, const CRGB& p2)
 {
     return CRGB( p1.r < p2.r ? p1.r : p2.r,
                  p1.g < p2.g ? p1.g : p2.g,
-                 p1.b < p2.b ? p1.b : p2.b);
+                 p1.b < p2.b ? p1.b : p2.b,
+                 p1.a < p2.a ? p1.a : p2.a);
 }
 
 /// Combine two CRGB objects, taking the largest value of each channel
@@ -932,7 +950,8 @@ inline CRGB operator|( const CRGB& p1, const CRGB& p2)
 {
     return CRGB( p1.r > p2.r ? p1.r : p2.r,
                  p1.g > p2.g ? p1.g : p2.g,
-                 p1.b > p2.b ? p1.b : p2.b);
+                 p1.b > p2.b ? p1.b : p2.b,
+                 p1.a > p2.a ? p1.a : p2.a);
 }
 
 /// Scale using CRGB::nscale8_video()
